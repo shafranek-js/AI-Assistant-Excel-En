@@ -43,6 +43,19 @@ Local routes:
 - LM Studio (OpenAI-compatible local API endpoint).
 - Codex CLI route (`Codex CLI (ChatGPT Plus)`) executed locally from VBA.
 
+## Features Matrix
+| Route label in UI | Provider path | Auth requirement | Image support | Execution mode |
+|---|---|---|---|---|
+| DeepSeek | DeepSeek API | DeepSeek API key | No | Cloud |
+| Claude Sonnet 4.5 | OpenRouter | OpenRouter API key | Yes | Cloud |
+| GPT-5.2 (OpenRouter) | OpenRouter | OpenRouter API key | Yes | Cloud |
+| Gemini 3 Pro | OpenRouter | OpenRouter API key | Yes | Cloud |
+| Gemini 3 Flash | OpenRouter | OpenRouter API key | Yes | Cloud |
+| GPT-5.2 (Direct OpenAI) | OpenAI Chat Completions API | OpenAI API key | Yes | Cloud |
+| GPT-5.2 Codex (Direct) | OpenAI Chat Completions API | OpenAI API key | Yes | Cloud |
+| Codex CLI (ChatGPT Plus) | Local `codex exec` | `codex login` session | Yes | Local CLI bridge |
+| Local mode (LM Studio) | LM Studio OpenAI-compatible endpoint | No cloud key (local endpoint required) | No (text flow) | Local |
+
 ## Command Coverage
 The assistant supports a large set of executable Excel commands across:
 
