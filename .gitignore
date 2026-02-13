@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local temporary/debug folders
+.diag_*/
+.make_*/
+.verify_*/
+
+# Build outputs
+AI_Assistant_dev_*.xlsm
+AI_Assistant_latest_*.xlsm
+vbaProject.bin
+vba_unpacked/
+
+# Editor/system noise
+.DS_Store
+Thumbs.db
+x2scrap.png
