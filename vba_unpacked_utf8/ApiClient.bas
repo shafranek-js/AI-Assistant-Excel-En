@@ -21,6 +21,8 @@ Private Const HTTP_BACKOFF_BASE_SECONDS As Long = 1
 Private Const HTTP_BACKOFF_MAX_SECONDS As Long = 8
 Private Const CODEX_CLI_TIMEOUT_SECONDS As Long = 90
 Private Const CODEX_CLI_TEMP_SUBDIR As String = "ExcelAIAssistantCodex"
+Private Const GEMINI_CLI_TIMEOUT_SECONDS As Long = 120
+Private Const GEMINI_CLI_TEMP_SUBDIR As String = "ExcelAIAssistantGemini"
 
 ' API key storage (Registry)
 Private Const REG_PATH As String = "HKEY_CURRENT_USER\Software\ExcelAIAssistant\"
@@ -74,7 +76,7 @@ Public Function SendToAI(userMessage As String, model As String, Optional excelC
             SendToAI = "ERROR: DeepSeek does not support images. Select another model (Claude, GPT, Gemini)."
             Exit Function
         End If
-        If model <> "codex-cli" Then
+        If model <> "codex-cli" And model <> "gemini-cli" Then
             imageBase64 = ImageToBase64(imagePath)
             If Left(imageBase64, 6) = "ERROR:" Then
                 SendToAI = "ERROR loading image: " & Mid(imageBase64, 7)
@@ -98,6 +100,8 @@ Public Function SendToAI(userMessage As String, model As String, Optional excelC
         apiKey = GetApiKey("OpenAIKey")
         modelName = GPT_CODEX_DIRECT_MODEL
     ElseIf model = "codex-cli" Then
+        requiresApiKey = False
+    ElseIf model = "gemini-cli" Then
         requiresApiKey = False
     Else
         ' All other models via OpenRouter
@@ -128,6 +132,9 @@ Public Function SendToAI(userMessage As String, model As String, Optional excelC
     
     If model = "codex-cli" Then
         SendToAI = SendToCodexCLI(userMessage, effectiveContext, imagePath)
+        Exit Function
+    ElseIf model = "gemini-cli" Then
+        SendToAI = SendToGeminiCLI(userMessage, effectiveContext, imagePath)
         Exit Function
     End If
 
@@ -808,6 +815,116 @@ ErrorHandler:
     SendToCodexCLI = "ERROR: " & Err.Description
 End Function
 
+Public Function IsGeminiCliAvailable() As Boolean
+    On Error GoTo ErrorHandler
+
+    Dim outText As String
+    Dim errText As String
+    Dim exitCode As Long
+
+    If Not RunCommandCapture("where gemini", 10, outText, errText, exitCode) Then
+        IsGeminiCliAvailable = False
+        Exit Function
+    End If
+
+    IsGeminiCliAvailable = (exitCode = 0 And Len(Trim$(outText)) > 0)
+    Exit Function
+
+ErrorHandler:
+    IsGeminiCliAvailable = False
+End Function
+
+Public Function SendToGeminiCLI(userMessage As String, Optional excelContext As String = "", Optional imagePath As String = "") As String
+    On Error GoTo ErrorHandler
+
+    Dim workDir As String
+    Dim tempRoot As String
+    Dim tempDir As String
+    Dim suffix As String
+    Dim promptPath As String
+    Dim systemPrompt As String
+    Dim fullPrompt As String
+    Dim cmd As String
+    Dim outText As String
+    Dim errText As String
+    Dim exitCode As Long
+    Dim runOk As Boolean
+    Dim errLower As String
+    Dim errCompact As String
+
+    If Not IsGeminiCliAvailable() Then
+        SendToGeminiCLI = "ERROR: Gemini CLI is not available. Install Gemini CLI and ensure 'gemini' is in PATH."
+        Exit Function
+    End If
+
+    workDir = GetCodexWorkDir()
+
+    tempRoot = Environ$("TEMP")
+    If Len(tempRoot) = 0 Then tempRoot = CurDir$
+    If Right$(tempRoot, 1) <> "\" Then tempRoot = tempRoot & "\"
+    tempDir = tempRoot & GEMINI_CLI_TEMP_SUBDIR
+
+    If Not EnsureFolderExists(tempDir) Then
+        SendToGeminiCLI = "ERROR: Cannot create temp directory for Gemini CLI: " & tempDir
+        Exit Function
+    End If
+
+    Randomize
+    suffix = Format$(Now, "yyyymmdd_hhnnss") & "_" & CStr(Int(Rnd() * 9000) + 1000)
+    promptPath = tempDir & "\prompt_" & suffix & ".txt"
+
+    systemPrompt = BuildSystemPrompt(excelContext)
+    fullPrompt = systemPrompt & vbCrLf & vbCrLf & "User task:" & vbCrLf & userMessage
+    If Len(Trim$(imagePath)) > 0 Then
+        fullPrompt = fullPrompt & vbCrLf & vbCrLf & "Attached image path: " & imagePath & vbCrLf & "If tools allow, use this image as extra context."
+    End If
+
+    If Not WriteTextFileUtf8(promptPath, fullPrompt) Then
+        SendToGeminiCLI = "ERROR: Failed to prepare request for Gemini CLI."
+        GoTo Cleanup
+    End If
+
+    cmd = "cd /d " & QuoteForCmd(workDir) & " && set NO_COLOR=1 && chcp 65001 >nul && type " & QuoteForCmd(promptPath) & " | gemini -p """" --output-format text --approval-mode yolo"
+
+    runOk = RunCommandCapture(cmd, GEMINI_CLI_TIMEOUT_SECONDS, outText, errText, exitCode)
+    If Not runOk Then
+        SendToGeminiCLI = "ERROR: Gemini CLI request timed out. Try a shorter request or less data."
+        GoTo Cleanup
+    End If
+
+    If exitCode <> 0 Then
+        errLower = LCase$(errText & " " & outText)
+        If InStr(errLower, "set an auth method") > 0 Or _
+           InStr(errLower, "gemini_api_key") > 0 Or _
+           InStr(errLower, "google_genai_use_gca") > 0 Or _
+           InStr(errLower, "authenticate") > 0 Or _
+           InStr(errLower, "login") > 0 Then
+            SendToGeminiCLI = "ERROR: Gemini CLI is not authenticated. Run 'gemini' in terminal and complete login, or set GEMINI_API_KEY."
+        Else
+            errCompact = CompactErrorText(errText)
+            If Len(Trim$(errCompact)) = 0 Or errCompact = "No error details." Then
+                errCompact = CompactErrorText(outText)
+            End If
+            SendToGeminiCLI = "ERROR: Gemini CLI failed (exit " & exitCode & "). " & errCompact
+        End If
+        GoTo Cleanup
+    End If
+
+    SendToGeminiCLI = Trim$(outText)
+    If Len(SendToGeminiCLI) = 0 Then
+        SendToGeminiCLI = "ERROR: Empty response from Gemini CLI."
+    End If
+
+Cleanup:
+    On Error Resume Next
+    If Len(Dir$(promptPath)) > 0 Then Kill promptPath
+    On Error GoTo 0
+    Exit Function
+
+ErrorHandler:
+    SendToGeminiCLI = "ERROR: " & Err.Description
+End Function
+
 Private Function GetCodexWorkDir() As String
     Dim p As String
     
@@ -1110,5 +1227,8 @@ Cleanup:
     End If
     On Error GoTo 0
 End Function
+
+
+
 
 

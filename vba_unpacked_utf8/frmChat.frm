@@ -1,4 +1,4 @@
-﻿Attribute VB_Name = "frmChat"
+Attribute VB_Name = "frmChat"
 Attribute VB_Base = "0{5DC78F22-B3FF-4F43-A3CB-922D56074F42}{90BEFFAC-02B5-4FA8-A512-F43F7344A1E9}"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
@@ -32,6 +32,7 @@ Private Sub UserForm_Initialize()
     cmbModel.AddItem "GPT-5.2 (Direct OpenAI)"
     cmbModel.AddItem "GPT-5.2 Codex (Direct)"
     cmbModel.AddItem "Codex CLI (ChatGPT Plus)"
+    cmbModel.AddItem "Gemini CLI (Google)"
     cmbModel.AddItem "Gemini 3 Pro"
     cmbModel.AddItem "Claude Sonnet 4.5"
     cmbModel.AddItem "DeepSeek"
@@ -45,6 +46,8 @@ Private Sub UserForm_Initialize()
         cmbModel.value = "DeepSeek"
     ElseIf IsCodexCliAvailable() Then
         cmbModel.value = "Codex CLI (ChatGPT Plus)"
+    ElseIf IsGeminiCliAvailable() Then
+        cmbModel.value = "Gemini CLI (Google)"
     Else
         cmbModel.ListIndex = 0
     End If
@@ -124,6 +127,8 @@ Private Sub btnSend_Click()
                 model = "gpt-codex-direct"
             Case "Codex CLI (ChatGPT Plus)"
                 model = "codex-cli"
+            Case "Gemini CLI (Google)"
+                model = "gemini-cli"
             Case "Gemini 3 Pro"
                 model = "gemini"
             Case "Gemini 3 Flash"
@@ -135,7 +140,7 @@ Private Sub btnSend_Click()
         Dim keyType As String
         If model = "deepseek" Then
             keyType = "deepseek"
-        ElseIf model = "codex-cli" Then
+        ElseIf model = "codex-cli" Or model = "gemini-cli" Then
             keyType = ""
         ElseIf model = "gpt-direct" Or model = "gpt-codex-direct" Then
             keyType = "openai"
@@ -143,7 +148,7 @@ Private Sub btnSend_Click()
             keyType = "openrouter"
         End If
         
-        If model <> "codex-cli" And Not HasApiKey(keyType) Then
+        If model <> "codex-cli" And model <> "gemini-cli" And Not HasApiKey(keyType) Then
             MsgBox "API key is not configured. Open Settings.", vbExclamation
             Exit Sub
         End If
@@ -162,6 +167,8 @@ Private Sub btnSend_Click()
         lblStatus.Caption = "LM Studio..."
     ElseIf model = "codex-cli" Then
         lblStatus.Caption = "Codex CLI..."
+    ElseIf model = "gemini-cli" Then
+        lblStatus.Caption = "Gemini CLI..."
     Else
         lblStatus.Caption = "Sending..."
     End If
@@ -263,3 +270,6 @@ Private Sub txtInput_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift
         KeyCode = 0
     End If
 End Sub
+
+
+
