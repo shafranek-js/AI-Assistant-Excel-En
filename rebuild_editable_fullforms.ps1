@@ -119,6 +119,10 @@ function Add-StandardModule {
 
 $requiredFiles = @(
     "modAIHelper.bas",
+    "ApiClient.bas",
+    "PromptBuilder.bas",
+    "CommandParser.bas",
+    "CommandExecutor.bas",
     "modExcelHelper.bas",
     "modMain.bas",
     "frmChat.frm",
@@ -157,6 +161,10 @@ try {
     $vb = $wb.VBProject
 
     Add-StandardModule -VBProject $vb -Name "modAIHelper" -ModulePath (Join-Path $InputDir "modAIHelper.bas")
+    Add-StandardModule -VBProject $vb -Name "ApiClient" -ModulePath (Join-Path $InputDir "ApiClient.bas")
+    Add-StandardModule -VBProject $vb -Name "PromptBuilder" -ModulePath (Join-Path $InputDir "PromptBuilder.bas")
+    Add-StandardModule -VBProject $vb -Name "CommandParser" -ModulePath (Join-Path $InputDir "CommandParser.bas")
+    Add-StandardModule -VBProject $vb -Name "CommandExecutor" -ModulePath (Join-Path $InputDir "CommandExecutor.bas")
     Add-StandardModule -VBProject $vb -Name "modExcelHelper" -ModulePath (Join-Path $InputDir "modExcelHelper.bas")
     Add-StandardModule -VBProject $vb -Name "modMain" -ModulePath (Join-Path $InputDir "modMain.bas")
 
@@ -341,3 +349,4 @@ if ($UpdateLatestAlias -and -not [string]::IsNullOrWhiteSpace($latestPath)) {
     Copy-Item -LiteralPath $outputFull -Destination $latestPath -Force
     Write-Output "Updated: $latestPath"
 }
+
