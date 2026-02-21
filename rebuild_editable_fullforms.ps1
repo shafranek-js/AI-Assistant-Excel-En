@@ -172,7 +172,7 @@ try {
     $frmChat.Name = "frmChat"
     $d = $frmChat.Designer
     try { $d.Caption = "AI Assistant for Excel" } catch {}
-    Set-FormSize -Component $frmChat -Designer $d -Width 540 -Height 535
+    Set-FormSize -Component $frmChat -Designer $d -Width 860 -Height 595
 
     Add-Control $d "Forms.TextBox.1" "txtChat" 12 12 500 315 @{
         MultiLine = $true
@@ -192,54 +192,90 @@ try {
         ScrollBars = 2
     } | Out-Null
 
-    Add-Control $d "Forms.OptionButton.1" "optCloud" 12 434 70 18 @{
+    Add-Control $d "Forms.OptionButton.1" "optCloud" 12 430 70 18 @{
         Caption = "Cloud"
         Value = $true
     } | Out-Null
 
-    Add-Control $d "Forms.OptionButton.1" "optLocal" 86 434 70 18 @{
+    Add-Control $d "Forms.OptionButton.1" "optLocal" 86 430 70 18 @{
         Caption = "Local"
     } | Out-Null
 
-    Add-Control $d "Forms.ComboBox.1" "cmbModel" 160 432 170 21 @{} | Out-Null
+    Add-Control $d "Forms.ComboBox.1" "cmbModel" 160 428 170 21 @{} | Out-Null
 
-    Add-Control $d "Forms.Label.1" "lblLocalModel" 160 434 170 18 @{
+    Add-Control $d "Forms.Label.1" "lblLocalModel" 160 430 170 18 @{
         Caption = "LM Studio (auto)"
         Visible = $false
     } | Out-Null
 
-    Add-Control $d "Forms.CheckBox.1" "chkIncludeData" 334 434 82 18 @{
+    Add-Control $d "Forms.CheckBox.1" "chkIncludeData" 12 452 90 18 @{
         Caption = "Include Data"
         Value = $true
     } | Out-Null
 
-    Add-Control $d "Forms.CheckBox.1" "chkPreviewCommands" 420 434 92 18 @{
+    Add-Control $d "Forms.CheckBox.1" "chkPreviewCommands" 108 452 130 18 @{
         Caption = "Preview"
         Value = $false
     } | Out-Null
+    
+    Add-Control $d "Forms.Label.1" "lblSafetyMode" 250 454 70 15 @{
+        Caption = "Safety Mode"
+    } | Out-Null
+    
+    Add-Control $d "Forms.ComboBox.1" "cmbSafetyMode" 324 450 188 21 @{} | Out-Null
 
-    Add-Control $d "Forms.CommandButton.1" "btnSend" 12 460 90 28 @{
+    Add-Control $d "Forms.CommandButton.1" "btnSend" 12 476 90 28 @{
         Caption = "Send"
     } | Out-Null
 
-    Add-Control $d "Forms.CommandButton.1" "btnClear" 108 460 90 28 @{
+    Add-Control $d "Forms.CommandButton.1" "btnClear" 108 476 90 28 @{
         Caption = "Clear"
     } | Out-Null
 
-    Add-Control $d "Forms.CommandButton.1" "btnAttach" 204 460 90 28 @{
+    Add-Control $d "Forms.CommandButton.1" "btnAttach" 204 476 90 28 @{
         Caption = "Attach"
     } | Out-Null
 
-    Add-Control $d "Forms.CommandButton.1" "btnSettings" 300 460 90 28 @{
+    Add-Control $d "Forms.CommandButton.1" "btnSettings" 300 476 90 28 @{
         Caption = "Settings"
     } | Out-Null
 
-    Add-Control $d "Forms.CommandButton.1" "btnClose" 422 460 90 28 @{
+    Add-Control $d "Forms.CommandButton.1" "btnClose" 422 476 90 28 @{
         Caption = "Close"
     } | Out-Null
 
-    Add-Control $d "Forms.Label.1" "lblAttachment" 12 418 500 14 @{
+    Add-Control $d "Forms.Label.1" "lblAttachment" 12 414 500 14 @{
         Caption = ""
+    } | Out-Null
+    
+    Add-Control $d "Forms.Label.1" "lblActionPlan" 530 12 305 18 @{
+        Caption = "Action Plan"
+    } | Out-Null
+    
+    Add-Control $d "Forms.ListBox.1" "lstActionPlan" 530 32 305 340 @{
+    } | Out-Null
+    
+    Add-Control $d "Forms.Label.1" "lblActionSummary" 530 378 305 28 @{
+        Caption = "No actions yet."
+    } | Out-Null
+    
+    Add-Control $d "Forms.Label.1" "lblSystemLog" 530 410 305 16 @{
+        Caption = "System Log"
+    } | Out-Null
+    
+    Add-Control $d "Forms.TextBox.1" "txtSystemLog" 530 428 305 72 @{
+        MultiLine = $true
+        EnterKeyBehavior = $true
+        WordWrap = $true
+        ScrollBars = 2
+    } | Out-Null
+    
+    Add-Control $d "Forms.CommandButton.1" "btnClearPlan" 530 506 100 28 @{
+        Caption = "Clear Plan"
+    } | Out-Null
+    
+    Add-Control $d "Forms.CommandButton.1" "btnRetry" 640 506 100 28 @{
+        Caption = "Retry"
     } | Out-Null
 
     Add-FormCode -Component $frmChat -FormCodePath (Join-Path $InputDir "frmChat.frm")
