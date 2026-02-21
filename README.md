@@ -42,6 +42,7 @@ Cloud routes:
 Local routes:
 - LM Studio (OpenAI-compatible local API endpoint).
 - Codex CLI route (`Codex CLI (ChatGPT Plus)`) executed locally from VBA.
+- Gemini CLI route (`Gemini CLI (Google)`) executed locally from VBA.
 
 ## Features Matrix
 | Route label in UI | Provider path | Auth requirement | Image support | Execution mode |
@@ -54,6 +55,7 @@ Local routes:
 | GPT-5.2 (Direct OpenAI) | OpenAI Chat Completions API | OpenAI API key | Yes | Cloud |
 | GPT-5.2 Codex (Direct) | OpenAI Chat Completions API | OpenAI API key | Yes | Cloud |
 | Codex CLI (ChatGPT Plus) | Local `codex exec` | `codex login` session | Yes | Local CLI bridge |
+| Gemini CLI (Google) | Local `gemini -p` | Gemini CLI login (`gemini`) or `GEMINI_API_KEY` | Yes | Local CLI bridge |
 | Local mode (LM Studio) | LM Studio OpenAI-compatible endpoint | No cloud key (local endpoint required) | No (text flow) | Local |
 
 ## Command Coverage
@@ -92,6 +94,7 @@ Open the assistant and click `Settings`, then configure provider keys.
 | OpenRouter (Claude/GPT/Gemini routes) | https://openrouter.ai |
 | OpenAI Direct routes | https://platform.openai.com |
 | Codex CLI route | `codex login` (local CLI authentication) |
+| Gemini CLI route | `gemini` login flow or `GEMINI_API_KEY` |
 
 For local LM Studio mode:
 - install and run LM Studio,
@@ -145,6 +148,7 @@ See also:
 - Python 3.x for `unpack_vba.py`.
 - Internet access for cloud routes.
 - Optional: Codex CLI installed/authenticated for Codex CLI mode.
+- Optional: Gemini CLI installed/authenticated for Gemini CLI mode.
 
 ## Security Notes
 - API keys are stored in Windows Registry:
