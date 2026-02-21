@@ -379,8 +379,11 @@ Public Function ValidateCommandStrict(cmd As String, ByRef reason As String) As 
             If Not ValidateArgCount(action, argCount, 1, 2, reason) Then Exit Function
             If Not IsValidRangeRef(ws, parts(1)) Then reason = "Invalid range": Exit Function
              
-        Case "FIND_REPLACE", "PIVOT_REFRESH"
-            If Not ValidateArgCount(action, argCount, 1, 3, reason) Then Exit Function
+        Case "FIND_REPLACE"
+            If Not ValidateArgCount(action, argCount, 2, 2, reason) Then Exit Function
+            
+        Case "PIVOT_REFRESH"
+            If Not ValidateArgCount(action, argCount, 1, 1, reason) Then Exit Function
             
         Case "FIND_REPLACE_RANGE"
             If Not ValidateArgCount(action, argCount, 3, 3, reason) Then Exit Function
@@ -444,8 +447,11 @@ Public Function ValidateCommandStrict(cmd As String, ByRef reason As String) As 
         Case "PAGE_ORIENTATION"
             If Not ValidateArgCount(action, argCount, 1, 1, reason) Then Exit Function
             
-        Case "PAGE_MARGINS", "FIT_TO_PAGE"
-            If Not ValidateArgCount(action, argCount, 2, 4, reason) Then Exit Function
+        Case "PAGE_MARGINS"
+            If Not ValidateArgCount(action, argCount, 4, 4, reason) Then Exit Function
+            
+        Case "FIT_TO_PAGE"
+            If Not ValidateArgCount(action, argCount, 2, 2, reason) Then Exit Function
             
         Case "PRINT_GRIDLINES"
             If Not ValidateArgCount(action, argCount, 1, 1, reason) Then Exit Function
@@ -469,5 +475,4 @@ Public Function ValidateCommandStrict(cmd As String, ByRef reason As String) As 
     
     ValidateCommandStrict = True
 End Function
-
 

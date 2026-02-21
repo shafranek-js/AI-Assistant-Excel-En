@@ -155,7 +155,7 @@ Behavior:
 - `%TEMP%\ExcelAIAssistantCodex`
 - Temp files are cleaned after run.
 - Timeout constant:
-- `CODEX_CLI_TIMEOUT_SECONDS = 240`
+- `CODEX_CLI_TIMEOUT_SECONDS = 90`
 
 Common failure mode:
 - If CLI is not logged in, app returns:
